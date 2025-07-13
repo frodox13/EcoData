@@ -32,7 +32,7 @@ EcoData/
     ```
 2. Navegar al Directorio del proyecto:
     ```bash
-    cd EcoData\src
+    cd EcoData
     ```
 3. Instalar dependencias:
     ```bash
