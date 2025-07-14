@@ -19,6 +19,7 @@ def init_db():
             user_id INTEGER NOT NULL,
             indicator TEXT NOT NULL,
             query_date TEXT NOT NULL,
+            value_date TEXT NOT NULL DEFAULT '',
             result TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES users(id)
         )
@@ -48,13 +49,13 @@ def get_user(username: str):
     conn.close()
     return user
 
-def save_query(user_id: int, indicator: str, query_date: str, result: str):
-    # Guarda una consulta realizada por un usuario.
+def save_query(user_id: int, indicator: str, query_date: str, value_date: str, result: str):
+    # Guarda una consulta realizada por un usuario, incluyendo la fecha de actualización del valor.
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO queries (user_id, indicator, query_date, result) VALUES (?, ?, ?, ?)",
-        (user_id, indicator, query_date, result)
+        "INSERT INTO queries (user_id, indicator, query_date, value_date, result) VALUES (?, ?, ?, ?, ?)",
+        (user_id, indicator, query_date, value_date, result)
     )
     conn.commit()
     conn.close()
@@ -63,17 +64,17 @@ def get_user_queries(user_id: int):
     # Obtiene todas las consultas realizadas por un usuario.
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT indicator, query_date, result FROM queries WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT indicator, query_date, value_date, result FROM queries WHERE user_id = ?", (user_id,))
     queries = cursor.fetchall()
     conn.close()
     return queries
 
 def get_all_queries():
-    # Obtiene todas las consultas realizadas en el sistema (para administrador), incluyendo el nombre de usuario.
+    # Obtiene todas las consultas realizadas en el sistema (para administrador), incluyendo el nombre de usuario y value_date.
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT users.username, queries.indicator, queries.query_date, queries.result
+        SELECT users.username, queries.indicator, queries.query_date, queries.value_date, queries.result
         FROM queries
         JOIN users ON queries.user_id = users.id
     """)
